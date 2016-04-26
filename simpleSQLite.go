@@ -15,10 +15,6 @@ type PaperStruct struct{
 	title string
 }
 
-type Page struct{
-	Title, Body string
-}
-
 var db *sql.DB //global database connection
 
 func main() {
@@ -31,7 +27,7 @@ func main() {
 	c := PaperStruct{authors: "john smith", year: 1996, title: "foo"}
 	insertData(c)
 	//x := retrieveData()
-	//fmt.Printf("%v", x)
+	//fmt.Printf("%+v\n", x)
 
 	http.HandleFunc("/", handlerFunc)
 	http.ListenAndServe(":8080", nil)
