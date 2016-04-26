@@ -10,9 +10,9 @@ import (
 )
 
 type PaperStruct struct{
-	authors string
-	year int
-	title string
+	Authors string
+	Year int
+	Title string
 }
 
 var db *sql.DB //global database connection
