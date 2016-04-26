@@ -13,7 +13,13 @@ type PaperStruct struct{
 	title string
 }
 
+var db *sql.DB //global database connection
+
 func main() {
+	db, err = sql.Open("sqlite3", "./researchPapers.db")
+	checkErr(err)
+	defer db.Close()
+
 	createTable()
 	c := PaperStruct{authors: "john smith", year: 1996, title: "foo"}
 	insertData(c)
@@ -29,12 +35,6 @@ func checkErr(err error) {
 
 //create the table if it doesn't exist
 func createTable(){
-	//open a connection to the database at ./foo.db
-        db, err := sql.Open("sqlite3", "./researchPapers.db")
-	checkErr(err)
-	//db should not have a lifetime beyond the scope of the function.
-	defer db.Close()
-
 	//create the table if it doesn't exist
 	sqlStmt := `
 	create table if not exists papers(
@@ -50,11 +50,6 @@ func createTable(){
 }
 
 func insertData(c PaperStruct){
-	//open a connection to the database at ./foo.db
-        db, err := sql.Open("sqlite3", "./researchPapers.db")
-	checkErr(err)
-	//db should not have a lifetime beyond the scope of the function.
-	defer db.Close()
 	_,err = db.Exec(fmt.Sprintf("insert into papers(title,year,authors) values('%s',%d,'%s')",c.title,c.year,c.authors))
 	checkErr(err)
 }
@@ -62,12 +57,6 @@ func insertData(c PaperStruct){
 func retrieveData()[]PaperStruct{
 	//make a slice of paper structs of length 0
 	results := make([]PaperStruct,0)
-	//open a connection to the database at ./foo.db
-        db, err := sql.Open("sqlite3", "./researchPapers.db")
-	checkErr(err)
-	//db should not have a lifetime beyond the scope of the function.
-	defer db.Close()
-
 	rows, err := db.Query("select title,year,authors from papers")
 	checkErr(err)
 
