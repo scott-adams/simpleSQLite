@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"net/http"
+	"html/template"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
@@ -11,6 +13,10 @@ type PaperStruct struct{
 	authors string
 	year int
 	title string
+}
+
+type Page struct{
+	Title, Body string
 }
 
 var db *sql.DB //global database connection
@@ -24,14 +30,24 @@ func main() {
 	createTable()
 	c := PaperStruct{authors: "john smith", year: 1996, title: "foo"}
 	insertData(c)
-	x := retrieveData()
-	fmt.Printf("%v", x)
+	//x := retrieveData()
+	//fmt.Printf("%v", x)
+
+	http.HandleFunc("/", handlerFunc)
+	http.ListenAndServe(":8080", nil)
 }
 
 func checkErr(err error) {
         if err != nil {
             log.Fatal(err)
         }
+}
+
+func handlerFunc(w http.ResponseWriter, r *http.Request) {
+	x := retrieveData()
+	t,err := template.ParseFiles("template.html")
+	checkErr(err)
+	t.Execute(w, x)
 }
 
 //create the table if it doesn't exist
