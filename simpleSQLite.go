@@ -16,6 +16,7 @@ type PaperStruct struct{
 var db *sql.DB //global database connection
 
 func main() {
+	var err error
 	db, err = sql.Open("sqlite3", "./researchPapers.db")
 	checkErr(err)
 	defer db.Close()
@@ -42,7 +43,7 @@ func createTable(){
 		title text, 
 		year integer, 
 		authors text);`
-	_, err = db.Exec(sqlStmt)
+	_, err := db.Exec(sqlStmt)
 	if err != nil {
 		log.Printf("%q: %s\n", err, sqlStmt)
 		return
@@ -50,7 +51,7 @@ func createTable(){
 }
 
 func insertData(c PaperStruct){
-	_,err = db.Exec(fmt.Sprintf("insert into papers(title,year,authors) values('%s',%d,'%s')",c.title,c.year,c.authors))
+	_,err := db.Exec(fmt.Sprintf("insert into papers(title,year,authors) values('%s',%d,'%s')",c.title,c.year,c.authors))
 	checkErr(err)
 }
 
