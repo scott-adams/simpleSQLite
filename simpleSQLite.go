@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 	"html/template"
-	"fmt"
+	//"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"strconv"
 	"log"
@@ -115,7 +115,7 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
                 Tag3:r.FormValue("Tag3"),
                 Tag4:r.FormValue("Tag4"),
                 Notes:r.FormValue("Notes")}
-	_,err = db.Exec(fmt.Sprintf("update papers set authors='%s',year=%d,title='%s',title2='%s',tag1='%s',tag2='%s',tag3='%s',tag4='%s',notes='%s' where id = %d",c.Authors,c.Year,c.Title,c.Title2,c.Tag1,c.Tag2,c.Tag3,c.Tag4,c.Notes,idInt))
+	_,err = db.Exec("update papers set authors=?,year=?,title=?,title2=?,tag1=?,tag2=?,tag3=?,tag4=?,notes=? where id = ?",c.Authors,c.Year,c.Title,c.Title2,c.Tag1,c.Tag2,c.Tag3,c.Tag4,c.Notes,idInt)
 	checkErr(err)
         http.Redirect(w, r, "/", http.StatusFound)
 }
@@ -143,12 +143,12 @@ func createTable(){
 }
 
 func insertData(c PaperStruct){
-	_,err := db.Exec(fmt.Sprintf("insert into papers(authors,year,title,title2,tag1,tag2,tag3,tag4,notes) values('%s',%d,'%s','%s','%s','%s','%s','%s','%s')",c.Authors,c.Year,c.Title,c.Title2,c.Tag1,c.Tag2,c.Tag3,c.Tag4,c.Notes))
+	_,err := db.Exec("insert into papers(authors,year,title,title2,tag1,tag2,tag3,tag4,notes) values(?,?,?,?,?,?,?,?,?)",c.Authors,c.Year,c.Title,c.Title2,c.Tag1,c.Tag2,c.Tag3,c.Tag4,c.Notes)
 	checkErr(err)
 }
 
 func retrieveRecord(id int)PaperStruct{
-	row,err := db.Query(fmt.Sprintf("select * from papers where ID = %d",id))
+	row,err := db.Query("select * from papers where ID = ?",id)
 	checkErr(err)
 	defer row.Close()
 	var table_data PaperStruct
