@@ -25,9 +25,17 @@ type PaperStruct struct {
 	Notes   string
 }
 
-//A Page is a struct that describes a single HTML Page
-type Page struct {
-	Title string
+//A PageMulti is a struct that describes a single HTML Page with multiple papers
+type PageMulti struct {
+	Title  string
+	Papers []PaperStruct
+}
+
+//A PageSingle is a struct that describes a single HTML Page with a single paper
+type PageSingle struct {
+	Title  string
+	CSS    string
+	Papers PaperStruct
 }
 
 var db *sql.DB //global database connection
@@ -46,7 +54,6 @@ func main() {
 	http.HandleFunc("/save/", saveHandler)
 	http.HandleFunc("/edit/", editHandler)
 	http.HandleFunc("/update/", updateHandler)
-	http.Handle("/resources/", http.StripPrefix("/resources/", http.FileServer(http.Dir("resources"))))
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -57,16 +64,20 @@ func checkErr(err error) {
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
-	x := retrieveMultiLineData()
-	t, err := template.ParseFiles("templates/view_template.html")
+	x := PageMulti{Title: "View Papers", Papers: retrieveMultiLineData()}
+	tmplBytes, err := Asset("resources/view_template.html")
+	checkErr(err)
+	t, err := template.New("viewtmpl").Parse(string(tmplBytes))
 	checkErr(err)
 	err = t.Execute(w, x)
 	checkErr(err)
 }
 
 func addHandler(w http.ResponseWriter, r *http.Request) {
-	x := Page{Title: "Add Record"}
-	t, err := template.ParseFiles("templates/add_template.html")
+	x := PageSingle{Title: "Add Record"}
+	tmplBytes, err := Asset("resources/add_template.html")
+	checkErr(err)
+	t, err := template.New("addtmpl").Parse(string(tmplBytes))
 	checkErr(err)
 	err = t.Execute(w, x)
 	checkErr(err)
@@ -96,10 +107,12 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 func editHandler(w http.ResponseWriter, r *http.Request) {
 	recordID, err := strconv.Atoi(r.URL.Path[6:]) //strip "/edit/" from the URL string and convert to int
 	checkErr(err)
-	record := retrieveRecord(recordID)
-	t, err := template.ParseFiles("templates/edit_template.html")
+	x := PageSingle{Title: "Add Record", Papers: retrieveRecord(recordID)}
+	tmplBytes, err := Asset("resources/edit_template.html")
 	checkErr(err)
-	err = t.Execute(w, record)
+	t, err := template.New("edittmpl").Parse(string(tmplBytes))
+	checkErr(err)
+	err = t.Execute(w, x)
 	checkErr(err)
 }
 
